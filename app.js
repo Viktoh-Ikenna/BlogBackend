@@ -10,7 +10,7 @@ const {promisify} = require('util');
 const { truncate } = require("fs");
 
 const app = express();
-app.enable('trust proxy')
+app.set('trust proxy',1)
 app.use(cookieParser());
 app.use(cors({ origin: true, credentials: true }));
 
@@ -209,7 +209,7 @@ app.post(
           // domain:".localhost:3000",
           path:"/admin-login",
           httpOnly: true,
-          secure: true,
+          secure: false,
           expires: new Date(Date.now() + 600000 * 50),
         });     
       } catch (err) {
