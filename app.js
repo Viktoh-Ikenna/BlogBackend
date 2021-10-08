@@ -10,6 +10,7 @@ const {promisify} = require('util');
 const { truncate } = require("fs");
 
 const app = express();
+app.enable('trust proxy')
 app.use(cookieParser());
 app.use(cors({ origin: true, credentials: true }));
 
@@ -131,9 +132,7 @@ router
   })
   .post("/updatePosts/:id",upload.single('Featured'),checklogged,(req, res) => {
     const {Title,Article,category,SpecialSpec,Date}=JSON.parse(req.body.posts);
-    let image = req.file?`${req.protocol}://${req.get(
-      "host"
-    )}/${req.file.path}`:"";
+    let image = req.file?`${req.file.path}`:"";
   // console.log(image)
   BlogPosts.findByIdAndUpdate(req.params.id,{Title,Author:req.user._id,Article,category,image,SpecialSpec,Date},{new:true})
       .then((data) => {
@@ -206,8 +205,11 @@ app.post(
       // try for the token cookie 
       try {
         res.cookie("token", token, {
+          domain: '.blogfrontend-6366e.web.app',
+          // domain:".localhost:3000",
+          path:"/admin-login",
           httpOnly: true,
-          sisecure: false,
+          secure: true,
           expires: new Date(Date.now() + 600000 * 50),
         });     
       } catch (err) {
