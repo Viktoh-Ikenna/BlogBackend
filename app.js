@@ -7,18 +7,38 @@ const multer  = require('multer')
 var cookieParser = require("cookie-parser");
 const path = require('path')
 const {promisify} = require('util');
+const session = require('express-session');
+const mongoDbSeesion = require('connect-mongodb-session')(session)
 const { truncate } = require("fs");
 
 const app = express();
+
 app.set('trust proxy',1)
+
 app.use(cookieParser());
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({ origin: [
+  'http://localhost:3000',
+  'https://blogfrontend-6366e.web.app',
+], credentials: true }));
 
 dotenv.config({ path: "./.env" });
 const dbUrl = process.env.DATABASE_CON.replace(
   "<password>",
   process.env.DATABASE_PASS
 );
+
+
+///session settings...
+const store = new mongoDbSeesion({
+  uri:dbUrl,
+  collection:'mysessions'
+})
+app.use(session({
+  secret:"any key saved",
+  resave:false,
+  saveUninitialized:false,
+  store:store
+}))
 
 //applying middlewares
 
@@ -33,6 +53,8 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => console.log("successfully connected to the database"));
+
+
 
 const authorSchema = new mongoose.Schema({
   name: String,
@@ -169,7 +191,9 @@ router
     }
   })
   .get('/Blogposts-page',async(req,res)=>{
+    // req.session.isAuth=true
     try{
+     
         const posts = await BlogPosts.find();
         res.json({ state: true,data:posts});
     }catch(err){
@@ -194,6 +218,7 @@ router
 app.post(
   "/admin-login",
   async (req, res) => {
+    
     try {
       const user = await Author.findOne({ password: req.body.password,name:req.body.name});
       // console.log(user)
@@ -205,9 +230,9 @@ app.post(
       // try for the token cookie 
       try {
         res.cookie("token", token, {
-          domain: '.blogfrontend-6366e.web.app',
+          // domain: '.blogfrontend-6366e.web.app',
           // domain:".localhost:3000",
-          path:"/admin-login",
+          // path:"/admin-login",
           httpOnly: true,
           secure: false,
           expires: new Date(Date.now() + 600000 * 50),
