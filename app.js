@@ -117,7 +117,8 @@ const router = express.Router();
 //check logged in ..
 const checklogged =async(req,res,next)=>{
   try{
-    const decode = await promisify(jwt.verify)(req.cookies.token, process.env.TOKEN_KEY);
+    console.log(req.session.token)
+    const decode = await promisify(jwt.verify)(req.session.token, process.env.TOKEN_KEY);
     const user = await Author.findById(decode.id);
     req.user=user
   }catch(err){
@@ -229,14 +230,15 @@ app.post(
 
       // try for the token cookie 
       try {
-        res.cookie("token", token, {
-          // domain: '.blogfrontend-6366e.web.app',
-          // domain:".localhost:3000",
-          // path:"/admin-login",
-          httpOnly: true,
-          secure: false,
-          expires: new Date(Date.now() + 600000 * 50),
-        });     
+        // res.cookie("token", token, {
+        //   // domain: '.blogfrontend-6366e.web.app',
+        //   // domain:".localhost:3000",
+        //   // path:"/admin-login",
+        //   httpOnly: true,
+        //   secure: false,
+        //   expires: new Date(Date.now() + 600000 * 50),
+        // });     
+        req.session.token=token
       } catch (err) {
         console.log(err);
       }
@@ -260,6 +262,8 @@ app.post('/admin-profile',uploadProfile.single('profile'),checklogged,async(req,
   // })
 })
 app.get("/admin",checklogged, (req, res) => {
+  // const sess=req.session.token;
+  // console.log(sess)
   try{
     if(!req.user) throw 'no user'
     res.json({ state: true,data:req.user});
