@@ -13,13 +13,26 @@ const { truncate } = require("fs");
 
 const app = express();
 
-app.set('trust proxy',1)
+app.set('trust proxy',true)
 
 app.use(cookieParser());
-app.use(cors({ origin: [
+
+const allowedOrigins=[
   'http://localhost:3000',
   'https://blogfrontend-6366e.web.app',
-], credentials: true }));
+  "https://protected-reef-93525.herokuapp.com",
+  'http://localhost:3500'
+]
+const getCORSOrigin = (origin, callback) => {
+  if (isUndefined(origin) || allowedOrigins.indexOf(origin) !== -1) {
+    callback(null, true);
+  } else {
+    callback(new Error(`Origin "${origin}" is not allowed by CORS`));
+  }
+};
+
+
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 dotenv.config({ path: "./.env" });
 const dbUrl = process.env.DATABASE_CON.replace(
@@ -37,8 +50,9 @@ app.use(session({
   secret:"any key saved",
   resave:false,
   saveUninitialized:false,
+  cookie: { httpOnly: true, secure: false, maxAge: 1000 * 60 * 60 * 48, sameSite: true },
   store:store,
-  cookie: { httpOnly: true, secure: false, maxAge: 1000 * 60 * 60 * 48, sameSite: false }
+
 }))
 
 //applying middlewares
@@ -119,7 +133,7 @@ const router = express.Router();
 const checklogged =async(req,res,next)=>{
 
   try{
-    console.log(req.session.token)
+    console.log(req.session)
     const decode = await promisify(jwt.verify)(req.session.token, process.env.TOKEN_KEY);
     const user = await Author.findById(decode.id);
     req.user=user
