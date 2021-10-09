@@ -37,7 +37,8 @@ app.use(session({
   secret:"any key saved",
   resave:false,
   saveUninitialized:false,
-  store:store
+  store:store,
+  cookie: { httpOnly: true, secure: false, maxAge: 1000 * 60 * 60 * 48, sameSite: false }
 }))
 
 //applying middlewares
@@ -116,6 +117,7 @@ const router = express.Router();
 
 //check logged in ..
 const checklogged =async(req,res,next)=>{
+
   try{
     console.log(req.session.token)
     const decode = await promisify(jwt.verify)(req.session.token, process.env.TOKEN_KEY);
