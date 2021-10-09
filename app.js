@@ -23,14 +23,6 @@ const allowedOrigins=[
   "https://protected-reef-93525.herokuapp.com",
   'http://localhost:3500'
 ]
-const getCORSOrigin = (origin, callback) => {
-  if (isUndefined(origin) || allowedOrigins.indexOf(origin) !== -1) {
-    callback(null, true);
-  } else {
-    callback(new Error(`Origin "${origin}" is not allowed by CORS`));
-  }
-};
-
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 
@@ -46,14 +38,8 @@ const store = new mongoDbSeesion({
   uri:dbUrl,
   collection:'mysessions'
 })
-app.use(session({
-  secret:"any key saved",
-  resave:false,
-  saveUninitialized:false,
-  cookie: { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 * 48, sameSite: true },
-  store:store,
 
-}))
+
 
 //applying middlewares
 
@@ -68,6 +54,19 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => console.log("successfully connected to the database"));
+
+// const store =new mongoDbSeesion({
+//   mongooseConnection: mongoose.connection,
+// })
+
+app.use(session({
+  secret:"any key saved",
+  resave:false,
+  saveUninitialized:false,
+  cookie: { httpOnly: true, secure: false, maxAge: 1000 * 60 * 60 * 48, sameSite: true },
+  store:store,
+
+}))
 
 
 
