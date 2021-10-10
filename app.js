@@ -63,7 +63,7 @@ app.use(session({
   secret:"any key saved",
   resave:false,
   saveUninitialized:false,
-  cookie: { httpOnly: true, secure: false, maxAge: 1000 * 60 * 60 * 48, sameSite: true },
+  cookie: { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 * 48, sameSite: true },
   store:store,
 
 }))
