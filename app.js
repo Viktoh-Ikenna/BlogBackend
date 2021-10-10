@@ -63,7 +63,7 @@ app.use(session({
   secret:"any key saved",
   resave:false,
   saveUninitialized:false,
-  cookie: { httpOnly: true, secure: true, maxAge: 1000 * 60 * 60 * 48, sameSite: true },
+  cookie: { httpOnly: true, secure:false , maxAge: 1000 * 60 * 60 * 48, sameSite: true },
   store:store,
 
 }))
@@ -130,10 +130,10 @@ const router = express.Router();
 
 //check logged in ..
 const checklogged =async(req,res,next)=>{
-
+// console.log()
   try{
-    console.log(req.session)
-    const decode = await promisify(jwt.verify)(req.session.token, process.env.TOKEN_KEY);
+    // console.log(req.session)
+    const decode = await promisify(jwt.verify)(req.headers.token, process.env.TOKEN_KEY);
     const user = await Author.findById(decode.id);
     req.user=user
   }catch(err){
@@ -253,7 +253,7 @@ app.post(
         //   secure: false,
         //   expires: new Date(Date.now() + 600000 * 50),
         // });     
-        req.session.token=token
+        // req.session.token=token
       } catch (err) {
         console.log(err);
       }
