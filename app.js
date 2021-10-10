@@ -4,7 +4,7 @@ const dotenv = require("dotenv");
 var cors = require("cors");
 const jwt = require("jsonwebtoken");
 const multer  = require('multer')
-var cookieParser = require("cookie-parser");
+// var cookieParser = require("cookie-parser");
 const path = require('path')
 const {promisify} = require('util');
 const session = require('express-session');
@@ -15,7 +15,7 @@ const app = express();
 
 app.set('trust proxy',true)
 
-app.use(cookieParser());
+// app.use(cookieParser());
 
 const allowedOrigins=[
   'http://localhost:3000',
