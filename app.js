@@ -130,7 +130,7 @@ const router = express.Router();
 
 //check logged in ..
 const checklogged =async(req,res,next)=>{
-// console.log()
+console.log(req.headers.token)
   try{
     // console.log(req.session)
     const decode = await promisify(jwt.verify)(req.headers.token, process.env.TOKEN_KEY);
@@ -275,10 +275,10 @@ app.post('/admin-profile',uploadProfile.single('profile'),checklogged,async(req,
   //   console.log(data)
 
   // })
+  res.json(User)
 })
 app.get("/admin",checklogged, (req, res) => {
-  // const sess=req.session.token;
-  // console.log(sess)
+  // console.log(req.user)
   try{
     if(!req.user) throw 'no user'
     res.json({ state: true,data:req.user});
