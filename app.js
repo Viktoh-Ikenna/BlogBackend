@@ -83,6 +83,9 @@ const commentSchema = new mongoose.Schema({
   Email: String,
   message: String,
   Approved: Boolean,
+  Date:String,
+  posts: { type: mongoose.Schema.Types.ObjectId, ref: "Posts" },
+
 });
 const Posts = new mongoose.Schema({
   Title: String,
@@ -93,12 +96,22 @@ const Posts = new mongoose.Schema({
   visitors: Number,
   image:String,
   SpecialSpec: Object,
-  reviews: { type: mongoose.Schema.Types.ObjectId, ref: "Comments" },
 });
+Posts.virtual('reviews',{
+  ref:'Comment',
+  foreignField:'posts',
+  localField:'_id'
+})
+
+Posts.set('toObject', { virtuals: true });
+Posts.set('toJSON', { virtuals: true });
+
 
 const BlogPosts = mongoose.model("Posts", Posts);
 const Author = mongoose.model("Author", authorSchema);
 const Comments = mongoose.model("Comment", commentSchema);
+
+
 
 
 //configuring images with multer..
@@ -159,9 +172,13 @@ router
       });
   })
   .post("/comments", (req, res) => {
-    Comments.create(req.body).then((data) => {
+    console.log(req.body)
+    if(req.body.email!==""){
+      Comments.create(req.body).then((data) => {
       res.json({ state: "success", data });
     });
+    }
+    
   })
   .post("/createUser", (req, res) => {
     Author.create(req.body).then((data) => {
@@ -220,7 +237,7 @@ router
   .get('/posts-page/:id',async(req,res)=>{
   
         const posts = await BlogPosts.findById(req.params.id)
-        const d= await posts.populate('Author').execPopulate()
+        const d= await posts.populate('reviews').execPopulate()
         
         res.json({ state: true,data:d});
      
